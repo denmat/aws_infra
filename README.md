@@ -1,4 +1,12 @@
+# ansible setup:
+
 ## ansible vault
+```
+$ mkdir ansible/secrets
+$ ansible-vault create secrets/aws.yml
+    aws_access_key: <key>
+    aws_secret_key: <secret>
+```
 
 ```
 ansible-playbook -i hosts/host.ini plays/builder_vpc.yml --ask-vault-pass -e @secrets/aws.yml
