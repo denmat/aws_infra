@@ -1,0 +1,18 @@
+stack_name: builder
+region: ap-southeast-2
+owner: DenMat
+keyname: deployer
+snsdest: tu2bgone@gmail.com
+image: ami-9b0b62a1
+keypair: deployer
+instance_type: t1.micro
+instance_tags:
+  role: bastion
+  owner: denmat
+  Name: Main Bastion
+exact_count: 1
+count_tag: 1
+assign_public_ip: true
+
+to_remove:
+  instance_id: nil

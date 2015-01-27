@@ -1,0 +1,19 @@
+- name: Install Mysql package
+  yum: name={{ item }} state=present
+  with_items:
+   - mysql-server
+   - libmysql-ruby
+
+- name: Create Mysql configuration file
+  template: src=my.cnf.j2 dest=/etc/my.cnf
+  notify: 
+  - restart mysql
+
+- name: Start Mysql Service
+  service: name=mysqld state=started enabled=true
+
+- name: Create Application Database
+  mysql_db: name={{ appdbname }} state=present
+
+- name: Create Application DB User
+  mysql_user: name={{ appdbuser }} password={{ appdbpassword }} priv=*.*:ALL host='%' state=present

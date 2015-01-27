@@ -1,0 +1,31 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    region: ap-southeast-2
+    key_name: salt_deployer
+    security_group_id: gitlab 
+    instance_type: t1.micro
+    ami_image: ami-1f117325
+    instance_profile_name: wal-e
+    instance_tags:
+      - role: gitlab
+      - db: postgresql
+      - web: nginx
+  gather_facts: False
+  tasks:
+  - name: creating gitlab ec2 host
+    local_action:
+      module: ec2
+      state: absent
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      region: "{{ region }}"
+      key_name: "{{ key_name }}"
+      group: "{{ security_group_id }}"
+      instance_type: "{{ instance_type }}"
+      instance_profile_name: "{{ instance_profile_name }}"
+      image: "{{ ami_image }}"
+      wait: yes
+      wait_timeout: 500
+

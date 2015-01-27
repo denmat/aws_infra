@@ -1,0 +1,6 @@
+---
+- include: main_vpc.yml
+- include: builder_vpc.yml
+- include: builder_peer.yml
+- include: builder_sg.yml
+- include: builder_bastion.yml

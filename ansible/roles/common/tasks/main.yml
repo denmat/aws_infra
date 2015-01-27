@@ -1,0 +1,14 @@
+- name: install common packages
+  apt: name={{ item }} state=present
+  with_items:
+    - ntp
+    - git 
+
+- name: Configure ntp file
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  tags: ntp
+  notify: restart ntp
+
+- name: Start the ntp service
+  service: name=ntpd state=started enabled=true
+  tags: ntp

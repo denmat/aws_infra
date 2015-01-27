@@ -1,0 +1,8 @@
+image: ami-9b0b62a1
+keypair: deployer
+instance_type: t1.micro
+instance_tags:
+  - role: bastion
+exact_count: 1
+count_tag: 1
+assign_public_ip: true

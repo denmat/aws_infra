@@ -1,0 +1,56 @@
+- name: create a main vpc
+  local_action:
+    module: ec2_vpc
+    state: present
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    cidr_block: 192.168.4.0/24 
+    resource_tags:
+      Name: Main VPC 
+      Environment: production
+    region: "{{ region }}"
+    dns_hostnames: yes
+    dns_support: yes
+    wait: yes
+  register: main_vpc
+
+- name: Set up the subnet for main vpc
+  local_action:
+    module: ec2_vpc_subnet
+    state: present
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    vpc_id: "{{ main_vpc.vpc_id }}"
+    region: "{{ main_vpc.vpc.region }}"
+    cidr: 192.168.4.0/24
+    resource_tags:
+      Name: main_vpc_subnet
+      Environment: production
+  register: main_subnet
+
+- name: Set up internal gateway for main vpc
+  local_action:
+    module: ec2_vpc_igw
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    vpc_id: "{{ main_vpc.vpc_id }}"
+    region: "{{ main_vpc.vpc.region }}"
+    state: present
+  register: main_igw
+
+- name: Set up public route table for main
+  local_action:
+    module: ec2_vpc_route_table
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    vpc_id: "{{ main_vpc.vpc_id }}"
+    region: "{{ main_vpc.vpc.region }}"
+    resource_tags:
+      Name: Main Public
+    subnets:
+      - '{{main_subnet.subnet_id}}'
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: '{{ main_igw.gateway_id}}'
+  register: public_route_table
+

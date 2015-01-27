@@ -1,0 +1,24 @@
+- name: create a new vpc
+  local_action:
+    module: ec2_vpc
+    state: present
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    cidr_block: 192.168.3.0/24
+    resource_tags: { "Environment":"production" }
+    subnets:
+      - cidr: 192.168.3.0/24
+        az: ap-southeast-2a
+        resource_tags: { "Purpose" : "packer" }
+    internet_gateway: True
+    route_tables:
+      - subnets:
+          - 192.168.3.0/24
+        routes:
+          - dest: 0.0.0.0/0
+            gw: igw
+    region: "{{ region }}"
+    dns_hostnames: yes
+    dns_support: yes
+    wait: yes
+  register: builder_vpc_details

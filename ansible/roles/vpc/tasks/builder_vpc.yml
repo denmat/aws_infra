@@ -1,0 +1,56 @@
+- name: create a builder vpc
+  local_action:
+    module: ec2_vpc
+    state: present
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    cidr_block: 192.168.3.0/24 
+    resource_tags:
+      Name: Builder VPC 
+      Environment: production
+    region: "{{ region }}"
+    dns_hostnames: yes
+    dns_support: yes
+    wait: yes
+  register: builder_vpc
+
+- name: Set up the subnet for builder vpc
+  local_action:
+    module: ec2_vpc_subnet
+    state: present
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    vpc_id: "{{ builder_vpc.vpc_id }}"
+    region: "{{ builder_vpc.vpc.region }}"
+    cidr: 192.168.3.0/24
+    resource_tags:
+      Name: builder_vpc_subnet
+      Environment: production
+  register: builder_subnet
+
+- name: Set up internal gateway for builder vpc
+  local_action:
+    module: ec2_vpc_igw
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    vpc_id: "{{ builder_vpc.vpc_id }}"
+    region: "{{ builder_vpc.vpc.region }}"
+    state: present
+  register: builder_igw
+
+- name: Set up public route table for builder
+  local_action:
+    module: ec2_vpc_route_table
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    vpc_id: "{{ builder_vpc.vpc_id }}"
+    region: "{{ builder_vpc.vpc.region }}"
+    resource_tags:
+      Name: Builder Public
+    subnets:
+      - '{{builder_subnet.subnet_id}}'
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: '{{ builder_igw.gateway_id}}'
+  register: public_route_table
+

@@ -1,0 +1,10 @@
+- name: create vpc between main and builder
+  local_action:
+    module: ec2_vpc_peering
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: 'present'
+    name: 'main-to-builder'
+    source_vpc: "{{ main_vpc.vpc_id }}"
+    dest_vpc: "{{ builder_vpc.vpc_id }}"
+    region: "{{ main_vpc.vpc.region }}" 
